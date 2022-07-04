@@ -11,7 +11,7 @@ public class InMemoryMongoServer extends MongoServer {
 
     public static void main(String[] args) {
         final MongoServer mongoServer = new InMemoryMongoServer();
-        mongoServer.bind("localhost", 27017);
+        mongoServer.bind("localhost", Integer.parseInt(args[0]));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("shutting down {}", mongoServer);

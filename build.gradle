@@ -2,9 +2,9 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencyLocking {
-        lockAllConfigurations()
-    }
+    // dependencyLocking {
+    //     lockAllConfigurations()
+    // }
 }
 
 plugins {
@@ -43,29 +43,29 @@ allprojects {
         }
     }
 
-    dependencyLocking {
-        lockAllConfigurations()
-    }
+    // dependencyLocking {
+    //     lockAllConfigurations()
+    // }
 }
 
 subprojects {
     dependencies {
         implementation group: 'org.slf4j', name: 'slf4j-api', version: 'latest.release'
 
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: 'latest.release'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: 'latest.release'
-        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: 'latest.release'
-        testImplementation group: 'org.assertj', name: 'assertj-core', version: 'latest.release'
-        testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: 'latest.release'
-        testRuntimeOnly group: 'org.slf4j', name: 'jcl-over-slf4j', version: 'latest.release'
+        // testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: 'latest.release'
+        // testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: 'latest.release'
+        // testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: 'latest.release'
+        // testImplementation group: 'org.assertj', name: 'assertj-core', version: 'latest.release'
+        // testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: 'latest.release'
+        // testRuntimeOnly group: 'org.slf4j', name: 'jcl-over-slf4j', version: 'latest.release'
     }
 
-    test {
-        useJUnitPlatform()
+    // test {
+    //     useJUnitPlatform()
 
-        maxHeapSize = "256m"
-        systemProperties['io.netty.leakDetectionLevel'] = 'advanced'
-    }
+    //     maxHeapSize = "256m"
+    //     systemProperties['io.netty.leakDetectionLevel'] = 'advanced'
+    // }
 }
 
 ext {
@@ -176,7 +176,7 @@ dependencies {
     jacocoAggregation subprojects
 }
 
-tasks.named('check') {
-    dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
-}
+// tasks.named('check') {
+//     dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
+// }
 
