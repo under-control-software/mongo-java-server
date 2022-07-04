@@ -11,7 +11,10 @@ plugins {
     id 'com.github.johnrengelman.shadow' version 'latest.release'
     id 'org.sonarqube' version 'latest.release'
     id 'jacoco-report-aggregation'
+    id 'application'
 }
+
+mainClassName = "de.bwaldvogel.mongo.InMemoryMongoServer"
 
 allprojects {
     apply plugin: 'java-library'
