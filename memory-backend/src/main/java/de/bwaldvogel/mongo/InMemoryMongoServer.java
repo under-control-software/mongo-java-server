@@ -10,11 +10,7 @@ public class InMemoryMongoServer extends MongoServer {
     private static final Logger log = LoggerFactory.getLogger(InMemoryMongoServer.class);
 
     public static void main(String[] args) {
-//        print args
-        int port = 27017;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        }
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : 27017;
         final MongoServer mongoServer = new InMemoryMongoServer();
         mongoServer.bind("localhost", port);
 
