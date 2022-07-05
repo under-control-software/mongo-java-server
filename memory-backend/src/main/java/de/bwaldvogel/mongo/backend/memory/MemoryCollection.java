@@ -24,7 +24,7 @@ public class MemoryCollection extends AbstractSynchronizedMongoCollection<Intege
     private final AtomicInteger dataSize = new AtomicInteger();
 
     public MemoryCollection(MongoDatabase database, String collectionName,
-                            CollectionOptions options, CursorRegistry cursorRegistry) {
+            CollectionOptions options, CursorRegistry cursorRegistry) {
         super(database, collectionName, options, cursorRegistry);
     }
 
@@ -40,6 +40,7 @@ public class MemoryCollection extends AbstractSynchronizedMongoCollection<Intege
 
     @Override
     protected Integer addDocumentInternal(Document document) {
+        System.out.println("43, MemoryCollection.java");
         Integer position = emptyPositions.poll();
         if (position == null) {
             position = Integer.valueOf(documents.size());
@@ -54,7 +55,8 @@ public class MemoryCollection extends AbstractSynchronizedMongoCollection<Intege
     }
 
     @Override
-    protected QueryResult matchDocuments(Document query, Document orderBy, int numberToSkip, int limit, int batchSize, Document fieldSelector) {
+    protected QueryResult matchDocuments(Document query, Document orderBy, int numberToSkip, int limit, int batchSize,
+            Document fieldSelector) {
         Iterable<Document> documents = iterateAllDocuments(orderBy);
         Stream<Document> documentStream = StreamSupport.stream(documents.spliterator(), false);
         return matchDocumentsFromStream(documentStream, query, orderBy, numberToSkip, limit, batchSize, fieldSelector);
@@ -91,8 +93,8 @@ public class MemoryCollection extends AbstractSynchronizedMongoCollection<Intege
     @Override
     protected Stream<DocumentWithPosition<Integer>> streamAllDocumentsWithPosition() {
         return IntStream.range(0, documents.size())
-            .filter(position -> !emptyPositions.contains(position))
-            .mapToObj(index -> new DocumentWithPosition<>(documents.get(index), index));
+                .filter(position -> !emptyPositions.contains(position))
+                .mapToObj(index -> new DocumentWithPosition<>(documents.get(index), index));
     }
 
     @Override

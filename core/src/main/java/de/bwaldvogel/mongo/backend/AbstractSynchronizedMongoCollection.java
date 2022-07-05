@@ -10,13 +10,14 @@ import de.bwaldvogel.mongo.oplog.Oplog;
 public abstract class AbstractSynchronizedMongoCollection<P> extends AbstractMongoCollection<P> {
 
     protected AbstractSynchronizedMongoCollection(MongoDatabase database, String collectionName,
-                                                  CollectionOptions options,
-                                                  CursorRegistry cursorRegistry) {
+            CollectionOptions options,
+            CursorRegistry cursorRegistry) {
         super(database, collectionName, options, cursorRegistry);
     }
 
     @Override
     public synchronized void addDocument(Document document) {
+        System.out.println("20, AbstractSynchronizedMongoCollection.java");
         super.addDocument(document);
     }
 
@@ -52,7 +53,7 @@ public abstract class AbstractSynchronizedMongoCollection<P> extends AbstractMon
 
     @Override
     public synchronized Document updateDocuments(Document selector, Document updateQuery, ArrayFilters arrayFilters,
-                                                 boolean isMulti, boolean isUpsert, Oplog oplog) {
+            boolean isMulti, boolean isUpsert, Oplog oplog) {
         return super.updateDocuments(selector, updateQuery, arrayFilters, isMulti, isUpsert, oplog);
     }
 

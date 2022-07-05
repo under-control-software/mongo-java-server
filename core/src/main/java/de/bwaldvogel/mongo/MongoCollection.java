@@ -36,12 +36,14 @@ public interface MongoCollection<P> extends AsyncMongoCollection {
     void addDocument(Document document);
 
     default void addDocuments(Stream<Document> documents) {
+        System.out.println("39, MongoCollection.java");
         documents.forEach(this::addDocument);
     }
 
     void removeDocument(Document document);
 
     default void addDocumentIfMissing(Document document) {
+        System.out.println("46, MongoCollection.java");
         if (!handleQuery(document, 0, 1).iterator().hasNext()) {
             addDocument(document);
         }
@@ -83,7 +85,7 @@ public interface MongoCollection<P> extends AsyncMongoCollection {
     List<Document> insertDocuments(List<Document> documents, boolean isOrdered);
 
     Document updateDocuments(Document selector, Document update, ArrayFilters arrayFilters,
-                             boolean isMulti, boolean isUpsert, Oplog oplog);
+            boolean isMulti, boolean isUpsert, Oplog oplog);
 
     default int deleteDocuments(Document selector, int limit) {
         return deleteDocuments(selector, limit, NoopOplog.get());

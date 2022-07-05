@@ -153,14 +153,14 @@ public abstract class AbstractMongoBackend implements MongoBackend {
     private Document handleAdminCommand(String command, Document query) {
         if (command.equalsIgnoreCase("listdatabases")) {
             List<Document> databases = listDatabaseNames().stream()
-                .sorted()
-                .map(databaseName -> {
-                    MongoDatabase database = openOrCreateDatabase(databaseName);
-                    Document dbObj = new Document("name", database.getDatabaseName());
-                    dbObj.put("empty", Boolean.valueOf(database.isEmpty()));
-                    return dbObj;
-                })
-                .collect(Collectors.toList());
+                    .sorted()
+                    .map(databaseName -> {
+                        MongoDatabase database = openOrCreateDatabase(databaseName);
+                        Document dbObj = new Document("name", database.getDatabaseName());
+                        dbObj.put("empty", Boolean.valueOf(database.isEmpty()));
+                        return dbObj;
+                    })
+                    .collect(Collectors.toList());
             Document response = new Document();
             response.put("databases", databases);
             Utils.markOkay(response);
@@ -185,9 +185,8 @@ public abstract class AbstractMongoBackend implements MongoBackend {
         } else if (command.equalsIgnoreCase("connectionStatus")) {
             Document response = new Document();
             response.append("authInfo", new Document()
-                .append("authenticatedUsers", Collections.emptyList())
-                .append("authenticatedUserRoles", Collections.emptyList())
-            );
+                    .append("authenticatedUsers", Collections.emptyList())
+                    .append("authenticatedUserRoles", Collections.emptyList()));
             Utils.markOkay(response);
             return response;
         } else if (command.equalsIgnoreCase("hostInfo")) {
@@ -219,16 +218,14 @@ public abstract class AbstractMongoBackend implements MongoBackend {
         String osName = System.getProperty("os.name");
         String osVersion = System.getProperty("os.version");
         response.append("os", new Document()
-            .append("type", osName)
-            .append("version", osVersion)
-        );
+                .append("type", osName)
+                .append("version", osVersion));
         response.append("system", new Document()
-            .append("currentTime", Instant.now())
-            .append("hostname", Utils.getHostName())
-        );
+                .append("currentTime", Instant.now())
+                .append("hostname", Utils.getHostName()));
         response.append("extra", new Document()
-            .append("versionString", osName + " " + osVersion)
-            .append("kernelVersion", osVersion));
+                .append("versionString", osName + " " + osVersion)
+                .append("kernelVersion", osVersion));
         Utils.markOkay(response);
         return response;
     }
@@ -342,26 +339,26 @@ public abstract class AbstractMongoBackend implements MongoBackend {
         if (databaseName.equals(ADMIN_DB_NAME)) {
             return handleAdminCommand(command, query);
         }
-
+        System.out.println("342, AbstractMongoBackend.java");
         return resolveDatabase(databaseName).handleCommand(channel, command, query, oplog);
     }
 
     @Override
     public CompletionStage<Document> handleCommandAsync(Channel channel, String database,
-                                                        String command, Document query) {
+            String command, Document query) {
         if ("dropDatabase".equalsIgnoreCase(command)) {
             return dropDatabaseAsync(database)
-                .handle((aVoid, ex) -> {
-                    Document response = new Document("dropped", database);
-                    if (ex != null) {
-                        response.put("errmsg", ex.getMessage());
-                        response.put("ok", 0.0);
-                        log.error("dropDatabase " + database + " error!", ex);
-                    } else {
-                        Utils.markOkay(response);
-                    }
-                    return response;
-                });
+                    .handle((aVoid, ex) -> {
+                        Document response = new Document("dropped", database);
+                        if (ex != null) {
+                            response.put("errmsg", ex.getMessage());
+                            response.put("ok", 0.0);
+                            log.error("dropDatabase " + database + " error!", ex);
+                        } else {
+                            Utils.markOkay(response);
+                        }
+                        return response;
+                    });
         }
 
         Document commandSync = handleCommandSync(channel, database, command, query);
@@ -372,7 +369,7 @@ public abstract class AbstractMongoBackend implements MongoBackend {
         if (database.equals(ADMIN_DB_NAME)) {
             return FutureUtils.wrap(() -> handleAdminCommand(command, query));
         }
-
+        System.out.println("372, AbstractMongoBackend.java");
         return resolveDatabase(database).handleCommandAsync(channel, command, query, oplog);
     }
 
@@ -487,6 +484,7 @@ public abstract class AbstractMongoBackend implements MongoBackend {
         String databaseName = message.getDatabaseName();
         Document query = message.getDocument();
         String command = query.keySet().iterator().next();
+        System.out.println("487, AbstraceMongoBackend.java");
         return handleCommand(channel, databaseName, command, query);
     }
 
@@ -534,9 +532,11 @@ public abstract class AbstractMongoBackend implements MongoBackend {
 
     protected Oplog createOplog() {
         MongoDatabase localDatabase = resolveDatabase("local");
-        MongoCollection<Document> collection = (MongoCollection<Document>) localDatabase.resolveCollection(OPLOG_COLLECTION_NAME, false);
+        MongoCollection<Document> collection = (MongoCollection<Document>) localDatabase
+                .resolveCollection(OPLOG_COLLECTION_NAME, false);
         if (collection == null) {
-            collection = (MongoCollection<Document>) localDatabase.createCollectionOrThrowIfExists(OPLOG_COLLECTION_NAME, CollectionOptions.withDefaults());
+            collection = (MongoCollection<Document>) localDatabase
+                    .createCollectionOrThrowIfExists(OPLOG_COLLECTION_NAME, CollectionOptions.withDefaults());
         }
         return new CollectionBackedOplog(this, collection, cursorRegistry);
     }

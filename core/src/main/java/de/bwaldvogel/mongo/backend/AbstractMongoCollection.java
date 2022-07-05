@@ -46,7 +46,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     protected final CursorRegistry cursorRegistry;
 
     protected AbstractMongoCollection(MongoDatabase database, String collectionName, CollectionOptions options,
-                                      CursorRegistry cursorRegistry) {
+            CursorRegistry cursorRegistry) {
         this.database = Objects.requireNonNull(database);
         this.collectionName = Objects.requireNonNull(collectionName);
         this.options = Objects.requireNonNull(options);
@@ -58,7 +58,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     protected QueryResult queryDocuments(Document query, Document orderBy, int numberToSkip, int limit, int batchSize,
-                                         Document fieldSelector) {
+            Document fieldSelector) {
         for (Index<P> index : indexes) {
             if (index.canHandle(query)) {
                 Iterable<P> positions = index.getPositions(query);
@@ -70,20 +70,21 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     protected abstract QueryResult matchDocuments(Document query, Document orderBy, int numberToSkip,
-                                                  int numberToReturn, int batchSize, Document fieldSelector);
+            int numberToReturn, int batchSize, Document fieldSelector);
 
     protected QueryResult matchDocumentsFromStream(Stream<Document> documentStream, Document query, Document orderBy,
-                                                   int numberToSkip, int limit, int batchSize, Document fieldSelector) {
+            int numberToSkip, int limit, int batchSize, Document fieldSelector) {
         Comparator<Document> documentComparator = deriveComparator(orderBy);
-        return matchDocumentsFromStream(query, documentStream, numberToSkip, limit, batchSize, documentComparator, fieldSelector);
+        return matchDocumentsFromStream(query, documentStream, numberToSkip, limit, batchSize, documentComparator,
+                fieldSelector);
     }
 
     protected QueryResult matchDocumentsFromStream(Document query, Stream<Document> documentStream,
-                                                   int numberToSkip, int limit, int batchSize,
-                                                   Comparator<Document> documentComparator,
-                                                   Document fieldSelector) {
+            int numberToSkip, int limit, int batchSize,
+            Comparator<Document> documentComparator,
+            Document fieldSelector) {
         documentStream = documentStream
-            .filter(document -> documentMatchesQuery(document, query));
+                .filter(document -> documentMatchesQuery(document, query));
 
         if (documentComparator != null) {
             documentStream = documentStream.sorted(documentComparator);
@@ -107,10 +108,10 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     protected QueryResult matchDocuments(Document query, Iterable<P> positions, Document orderBy,
-                                         int numberToSkip, int limit, int batchSize,
-                                         Document fieldSelector) {
+            int numberToSkip, int limit, int batchSize,
+            Document fieldSelector) {
         Stream<Document> documentStream = StreamSupport.stream(positions.spliterator(), false)
-            .map(position -> getDocument(position));
+                .map(position -> getDocument(position));
 
         return matchDocumentsFromStream(documentStream, query, orderBy, numberToSkip, limit, batchSize, fieldSelector);
     }
@@ -152,6 +153,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
 
     @Override
     public void addDocument(Document document) {
+        System.out.println("155, AbstractMongoCollection.java");
         if (document.get(ID_FIELD) instanceof Collection) {
             throw new BadValueException("can't use an array for _id");
         }
@@ -220,9 +222,9 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
 
     private Index<P> findByName(String indexName) {
         return indexes.stream()
-            .filter(index -> index.getName().equals(indexName))
-            .findFirst()
-            .orElse(null);
+                .filter(index -> index.getName().equals(indexName))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -235,8 +237,8 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     public void dropIndex(String indexName) {
         log.debug("Dropping index '{}'", indexName);
         List<Index<P>> indexesToDrop = indexes.stream()
-            .filter(index -> index.getName().equals(indexName))
-            .collect(Collectors.toList());
+                .filter(index -> index.getName().equals(indexName))
+                .collect(Collectors.toList());
         if (indexesToDrop.isEmpty()) {
             throw new IndexNotFoundException("index not found with name [" + indexName + "]");
         }
@@ -246,10 +248,11 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     private void modifyField(Document document, String modifier, Document update, ArrayFilters arrayFilters,
-                             Integer matchPos, boolean isUpsert) {
+            Integer matchPos, boolean isUpsert) {
         Document change = (Document) update.get(modifier);
         UpdateOperator updateOperator = getUpdateOperator(modifier, change);
-        FieldUpdates updates = new FieldUpdates(document, updateOperator, getIdField(), isUpsert, matchPos, arrayFilters);
+        FieldUpdates updates = new FieldUpdates(document, updateOperator, getIdField(), isUpsert, matchPos,
+                arrayFilters);
         updates.apply(change, modifier);
     }
 
@@ -262,7 +265,8 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
         try {
             op = UpdateOperator.fromValue(modifier);
         } catch (IllegalArgumentException e) {
-            throw new FailedToParseException("Unknown modifier: " + modifier + ". Expected a valid update modifier or pipeline-style update specified as an array");
+            throw new FailedToParseException("Unknown modifier: " + modifier
+                    + ". Expected a valid update modifier or pipeline-style update specified as an array");
         }
 
         return op;
@@ -277,7 +281,9 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
         Object newId = newDocument.get(getIdField());
 
         if (newId != null && oldId != null && !Utils.nullAwareEquals(oldId, newId)) {
-            throw new ImmutableFieldException("After applying the update, the (immutable) field '_id' was found to have been altered to _id: " + newId);
+            throw new ImmutableFieldException(
+                    "After applying the update, the (immutable) field '_id' was found to have been altered to _id: "
+                            + newId);
         }
 
         if (newId == null && oldId != null) {
@@ -315,7 +321,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     private Document calculateUpdateDocument(Document oldDocument, Document update, ArrayFilters arrayFilters,
-                                             Integer matchPos, boolean isUpsert) {
+            Integer matchPos, boolean isUpsert) {
 
         int numStartsWithDollar = 0;
         for (String key : update.keySet()) {
@@ -449,12 +455,13 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
         }
 
         return queryDocuments(query, orderBy, queryParameters.getNumberToSkip(), queryParameters.getLimit(),
-            queryParameters.getBatchSize(), queryParameters.getProjection());
+                queryParameters.getBatchSize(), queryParameters.getProjection());
     }
 
     @Override
     public List<Document> insertDocuments(List<Document> documents, boolean isOrdered) {
         int index = 0;
+        System.out.println("464, AbstraceMongoCollection.java"); // not called
         List<Document> writeErrors = new ArrayList<>();
         for (Document document : documents) {
             try {
@@ -506,7 +513,8 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
         List<Object> deletedDocumentIds = new ArrayList<>();
         for (Document document : handleQuery(selector, 0, limit)) {
             if (limit > 0 && deletedDocumentIds.size() >= limit) {
-                throw new MongoServerException("internal error: too many elements (" + deletedDocumentIds.size() + " >= " + limit + ")");
+                throw new MongoServerException(
+                        "internal error: too many elements (" + deletedDocumentIds.size() + " >= " + limit + ")");
             }
             deletedDocumentIds.add(document.get(getIdField()));
             removeDocument(document);
@@ -517,7 +525,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
 
     @Override
     public Document updateDocuments(Document selector, Document updateQuery, ArrayFilters arrayFilters,
-                                    boolean isMulti, boolean isUpsert, Oplog oplog) {
+            boolean isMulti, boolean isUpsert, Oplog oplog) {
         if (isMulti) {
             for (String key : updateQuery.keySet()) {
                 if (!key.startsWith("$")) {
@@ -558,7 +566,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
     }
 
     private Document updateDocument(Document document, Document updateQuery,
-                                    ArrayFilters arrayFilters, Integer matchPos) {
+            ArrayFilters arrayFilters, Integer matchPos) {
         Document oldDocument = document.cloneDeeply();
 
         Document newDocument = calculateUpdateDocument(document, updateQuery, arrayFilters, matchPos, false);
@@ -589,7 +597,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
             for (String key : newDocument.keySet()) {
                 if (key.contains(".")) {
                     throw new MongoServerException(
-                        "illegal field name. must not happen as it must be caught by the driver");
+                            "illegal field name. must not happen as it must be caught by the driver");
                 }
                 document.put(key, newDocument.get(key));
             }
@@ -603,9 +611,9 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
             return findDocumentPosition(document);
         }
         Set<P> positions = indexes.stream()
-            .map(index -> index.getPosition(document))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .map(index -> index.getPosition(document))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         return CollectionUtils.getSingleElement(positions);
     }
 
@@ -613,7 +621,7 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
 
     private Document handleUpsert(Document updateQuery, Document selector, ArrayFilters arrayFilters) {
         Document document = convertSelectorToDocument(selector);
-
+        System.out.println("624, AbstractMongoCollection.java");
         Document newDocument = calculateUpdateDocument(document, updateQuery, arrayFilters, null, true);
         newDocument.computeIfAbsent(getIdField(), k -> deriveDocumentId(selector));
         addDocument(newDocument);
@@ -763,10 +771,10 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
 
     protected P findDocumentPosition(Document document) {
         return streamAllDocumentsWithPosition()
-            .filter(match -> documentMatchesQuery(match.getDocument(), document))
-            .map(DocumentWithPosition::getPosition)
-            .findFirst()
-            .orElse(null);
+                .filter(match -> documentMatchesQuery(match.getDocument(), document))
+                .map(DocumentWithPosition::getPosition)
+                .findFirst()
+                .orElse(null);
     }
 
     protected abstract Stream<DocumentWithPosition<P>> streamAllDocumentsWithPosition();
@@ -779,8 +787,8 @@ public abstract class AbstractMongoCollection<P> implements MongoCollection<P> {
         final Collection<Document> firstBatch;
         if (batchSize > 0) {
             firstBatch = matchedDocuments.stream()
-                .limit(batchSize)
-                .collect(Collectors.toList());
+                    .limit(batchSize)
+                    .collect(Collectors.toList());
         } else {
             firstBatch = matchedDocuments;
         }

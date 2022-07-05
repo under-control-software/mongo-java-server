@@ -31,7 +31,8 @@ public interface MongoBackend extends AsyncMongoBackend {
     Document handleCommand(Channel channel, String database, String command, Document query);
 
     @Override
-    default CompletionStage<Document> handleCommandAsync(Channel channel, String database, String command, Document query) {
+    default CompletionStage<Document> handleCommandAsync(Channel channel, String database, String command,
+            Document query) {
         return FutureUtils.wrap(() -> handleCommand(channel, database, command, query));
     }
 
@@ -95,6 +96,7 @@ public interface MongoBackend extends AsyncMongoBackend {
 
     @Override
     default CompletionStage<Document> handleMessageAsync(MongoMessage message) {
+        System.out.println("99, MongoBackend.java");
         return FutureUtils.wrap(() -> handleMessage(message));
     }
 

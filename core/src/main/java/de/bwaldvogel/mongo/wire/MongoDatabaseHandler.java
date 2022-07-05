@@ -57,21 +57,21 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
         log.info("channel {} closed", ctx.channel());
         channelGroup.remove(ctx.channel());
         mongoBackend.handleCloseAsync(ctx.channel())
-            .thenAcceptAsync(aVoid -> {
+                .thenAcceptAsync(aVoid -> {
                     try {
                         super.channelInactive(ctx);
                     } catch (Exception e) {
                         ctx.fireExceptionCaught(e);
                     }
                 },
-                ctx.executor());
+                        ctx.executor());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ClientRequest object) {
         if (object instanceof MongoQuery) {
-            handleQueryAsync((MongoQuery) object).thenAccept(response ->
-                ctx.channel().writeAndFlush(response));
+            System.out.println("73, MongoDatabaseHandler.java (end/begin)");
+            handleQueryAsync((MongoQuery) object).thenAccept(response -> ctx.channel().writeAndFlush(response));
         } else if (object instanceof MongoInsert) {
             mongoBackend.handleInsertAsync((MongoInsert) object);
         } else if (object instanceof MongoDelete) {
@@ -79,13 +79,12 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
         } else if (object instanceof MongoUpdate) {
             mongoBackend.handleUpdateAsync((MongoUpdate) object);
         } else if (object instanceof MongoGetMore) {
-            handleGetMoreAsync((MongoGetMore) object).thenAccept(response ->
-                ctx.channel().writeAndFlush(response));
+            handleGetMoreAsync((MongoGetMore) object).thenAccept(response -> ctx.channel().writeAndFlush(response));
         } else if (object instanceof MongoKillCursors) {
             mongoBackend.handleKillCursorsAsync((MongoKillCursors) object);
         } else if (object instanceof MongoMessage) {
-            handleMessageAsync((MongoMessage) object).thenAccept(response ->
-                ctx.channel().writeAndFlush(response));
+            System.out.println("85, MongoDatabaseHandler.java");
+            handleMessageAsync((MongoMessage) object).thenAccept(response -> ctx.channel().writeAndFlush(response));
         } else {
             throw new MongoServerException("unknown message: " + object);
         }
@@ -93,8 +92,9 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
 
     // visible for testing
     CompletionStage<MongoMessage> handleMessageAsync(MongoMessage message) {
+        System.out.println("93, MongoDatabaseHandler.java");
         return mongoBackend.handleMessageAsync(message)
-            .handle((document, ex) -> createResponseMongoMessage(message, document, ex));
+                .handle((document, ex) -> createResponseMongoMessage(message, document, ex));
     }
 
     private MongoMessage createResponseMongoMessage(MongoMessage message, Document document, Throwable ex) {
@@ -116,15 +116,14 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
 
     // visible for testing
     CompletionStage<MongoReply> handleQueryAsync(MongoQuery query) {
+        System.out.println("118, MongoDatabaseHandler.java");
         if (query.getCollectionName().startsWith("$cmd")) {
             return handleCommandAsync(query)
-                .handle((document, ex) ->
-                    createResponseMongoReplyForCommand(query, document, ex));
+                    .handle((document, ex) -> createResponseMongoReplyForCommand(query, document, ex));
         }
 
         return mongoBackend.handleQueryAsync(query)
-            .handle((queryResult, ex) ->
-                createResponseMongoReplyForQuery(query, queryResult, ex));
+                .handle((queryResult, ex) -> createResponseMongoReplyForQuery(query, queryResult, ex));
     }
 
     private MongoReply createResponseMongoReplyForCommand(MongoQuery query, Document document, Throwable t) {
@@ -134,8 +133,8 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
         }
 
         return new MongoReply(header,
-            document != null ? Collections.singletonList(document) : Collections.emptyList(),
-            0);
+                document != null ? Collections.singletonList(document) : Collections.emptyList(),
+                0);
     }
 
     private MongoReply createResponseMongoReplyForQuery(MongoQuery query, QueryResult queryResult, Throwable t) {
@@ -145,8 +144,8 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
         }
 
         return new MongoReply(header,
-            queryResult != null ? queryResult.collectDocuments() : Collections.emptyList(),
-            queryResult != null ? queryResult.getCursorId() : 0);
+                queryResult != null ? queryResult.collectDocuments() : Collections.emptyList(),
+                queryResult != null ? queryResult.getCursorId() : 0);
     }
 
     private MongoReply createResponseMongoReplyForQueryFailure(MessageHeader header, MongoQuery query, Throwable t) {
@@ -165,15 +164,14 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
 
         log.error("Unknown error!", t);
         return queryFailure(header,
-            new MongoServerException("Unknown error: " + t.getMessage(), t),
-            Collections.emptyMap());
+                new MongoServerException("Unknown error: " + t.getMessage(), t),
+                Collections.emptyMap());
     }
 
     // visible for testing
     CompletionStage<MongoReply> handleGetMoreAsync(MongoGetMore getMore) {
         return mongoBackend.handleGetMoreAsync(getMore)
-            .handle((queryResult, ex) ->
-                createResponseMongoReplyForGetMore(getMore, queryResult, ex));
+                .handle((queryResult, ex) -> createResponseMongoReplyForGetMore(getMore, queryResult, ex));
     }
 
     private MongoReply createResponseMongoReplyForGetMore(MongoGetMore getMore, QueryResult queryResult, Throwable t) {
@@ -183,29 +181,31 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
         }
 
         return new MongoReply(header,
-            queryResult != null ? queryResult.collectDocuments() : Collections.emptyList(),
-            queryResult != null ? queryResult.getCursorId() : 0);
+                queryResult != null ? queryResult.collectDocuments() : Collections.emptyList(),
+                queryResult != null ? queryResult.getCursorId() : 0);
     }
 
-    private MongoReply createResponseMongoReplyForGetMoreFailure(MessageHeader header, MongoGetMore getMore, Throwable t) {
+    private MongoReply createResponseMongoReplyForGetMoreFailure(MessageHeader header, MongoGetMore getMore,
+            Throwable t) {
         if (t instanceof CursorNotFoundException) {
             return new MongoReply(header,
-                Collections.emptyList(),
-                getMore != null ? getMore.getCursorId() : 0,
-                ReplyFlag.CURSOR_NOT_FOUND);
+                    Collections.emptyList(),
+                    getMore != null ? getMore.getCursorId() : 0,
+                    ReplyFlag.CURSOR_NOT_FOUND);
         }
 
         log.error("Unknown error!", t);
         return queryFailure(header,
-            new MongoServerException("Unknown error: " + t.getMessage(), t),
-            Collections.emptyMap());
+                new MongoServerException("Unknown error: " + t.getMessage(), t),
+                Collections.emptyMap());
     }
 
     private MessageHeader createResponseHeader(ClientRequest request) {
         return new MessageHeader(idSequence.incrementAndGet(), request.getHeader().getRequestID());
     }
 
-    private MongoReply queryFailure(MessageHeader header, MongoServerException exception, Map<String, ?> additionalInfo) {
+    private MongoReply queryFailure(MessageHeader header, MongoServerException exception,
+            Map<String, ?> additionalInfo) {
         return new MongoReply(header, errorResponse(exception, additionalInfo), ReplyFlag.QUERY_FAILURE);
     }
 
@@ -229,7 +229,7 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
 
         if ("$cmd.sys.inprog".equals(collectionName)) {
             return FutureUtils.wrap(() -> mongoBackend.getCurrentOperations(query))
-                .thenApply(currentOperations -> new Document("inprog", currentOperations));
+                    .thenApply(currentOperations -> new Document("inprog", currentOperations));
 
         } else if ("$cmd".equals(collectionName)) {
             String command = query.getQuery().keySet().iterator().next();
@@ -251,10 +251,11 @@ public class MongoDatabaseHandler extends SimpleChannelInboundHandler<ClientRequ
                         command = ((Document) query.getQuery().get("$query")).keySet().iterator().next();
                         actualQuery = (Document) actualQuery.get("$query");
                     }
+                    System.out.println("252, MongoDatabaseHandler.java");
                     return mongoBackend.handleCommandAsync(query.getChannel(),
-                        query.getDatabaseName(),
-                        command,
-                        actualQuery);
+                            query.getDatabaseName(),
+                            command,
+                            actualQuery);
             }
         }
 

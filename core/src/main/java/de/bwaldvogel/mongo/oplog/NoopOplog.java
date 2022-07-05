@@ -20,6 +20,7 @@ public final class NoopOplog implements Oplog {
 
     @Override
     public void handleInsert(String namespace, List<Document> documents) {
+        System.out.println("Namespace inside noopoplog: " + namespace);
     }
 
     @Override
