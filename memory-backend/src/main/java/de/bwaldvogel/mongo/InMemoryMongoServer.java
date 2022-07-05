@@ -10,8 +10,13 @@ public class InMemoryMongoServer extends MongoServer {
     private static final Logger log = LoggerFactory.getLogger(InMemoryMongoServer.class);
 
     public static void main(String[] args) {
+//        print args
+        int port = 27017;
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        }
         final MongoServer mongoServer = new InMemoryMongoServer();
-        mongoServer.bind("localhost", Integer.parseInt(args[0]));
+        mongoServer.bind("localhost", port);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("shutting down {}", mongoServer);
