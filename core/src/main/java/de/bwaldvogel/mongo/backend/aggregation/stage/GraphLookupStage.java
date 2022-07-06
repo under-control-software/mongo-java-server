@@ -23,6 +23,7 @@ public class GraphLookupStage extends AbstractLookupStage {
     private static final String DEPTH_FIELD = "depthField";
 
     private static final Set<String> CONFIGURATION_KEYS;
+
     static {
         CONFIGURATION_KEYS = new HashSet<>();
         CONFIGURATION_KEYS.add(FROM);

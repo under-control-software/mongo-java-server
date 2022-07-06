@@ -122,7 +122,7 @@ public class MongoServer {
 
     /**
      * @return the local address the server was bound or null if the server is
-     *         not listening
+     * not listening
      */
     public InetSocketAddress getLocalAddress() {
         if (channel == null) {

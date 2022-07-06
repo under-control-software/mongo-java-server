@@ -9,7 +9,7 @@ public class MongoDelete extends ClientRequest {
     private final boolean singleRemove;
 
     public MongoDelete(Channel channel, MessageHeader header, String fullCollectionName, Document selector,
-            boolean singleRemove) {
+                       boolean singleRemove) {
         super(channel, header, fullCollectionName);
         this.selector = selector;
         this.singleRemove = singleRemove;

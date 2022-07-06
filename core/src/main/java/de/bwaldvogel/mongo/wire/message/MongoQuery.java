@@ -11,7 +11,7 @@ public class MongoQuery extends ClientRequest {
     private final int numberToReturn;
 
     public MongoQuery(Channel channel, MessageHeader header, String fullCollectionName, int numberToSkip,
-            int numberToReturn, Document query, Document returnFieldSelector) {
+                      int numberToReturn, Document query, Document returnFieldSelector) {
         super(channel, header, fullCollectionName);
         this.numberToSkip = numberToSkip;
         this.numberToReturn = numberToReturn;

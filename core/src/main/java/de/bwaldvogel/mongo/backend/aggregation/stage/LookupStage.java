@@ -19,6 +19,7 @@ public class LookupStage extends AbstractLookupStage {
     private static final String FOREIGN_FIELD = "foreignField";
 
     private static final Set<String> CONFIGURATION_KEYS;
+
     static {
         CONFIGURATION_KEYS = new HashSet<>();
         CONFIGURATION_KEYS.add(FROM);

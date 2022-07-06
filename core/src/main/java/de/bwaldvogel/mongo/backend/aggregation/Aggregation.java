@@ -77,7 +77,7 @@ public class Aggregation {
     }
 
     public static Aggregation fromPipeline(List<Document> pipeline, MongoDatabase database,
-                                            MongoCollection<?> collection, Oplog oplog) {
+                                           MongoCollection<?> collection, Oplog oplog) {
         Aggregation aggregation = new Aggregation(collection);
 
         for (Document stage : pipeline) {
